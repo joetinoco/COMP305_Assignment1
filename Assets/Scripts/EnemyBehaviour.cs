@@ -10,6 +10,8 @@ public class EnemyBehaviour : MonoBehaviour {
 	private Transform _transform;
 	public int damage = 1;
 
+	public AudioClip hitSound;
+
 	public int Speed {
 		get {
 			return this._speed;
@@ -71,6 +73,7 @@ public class EnemyBehaviour : MonoBehaviour {
 	// Trigger explosion and destroy enemy
 	private void _destroy(){
 		Destroy(gameObject);
+		gameController.audioSource.PlayOneShot(this.hitSound);
 		gameController.updateEnemyCount(-1);
 		gameController.updateScore(100);
 	}

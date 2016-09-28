@@ -23,10 +23,16 @@ public class GameController : MonoBehaviour {
 	public Text livesText;
 	private int playerScore = 0;
 
+	[Header("Sounds")]
+	public AudioSource audioSource;
+	public AudioClip deathSound;
+	public AudioClip powerupSound;
+
 	// GAME INITIALIZATION
 	void Start () {
 		enemiesInCurrentWave = enemiesPerWave;
 		playerLives = initialLives;
+		this.audioSource = GetComponent<AudioSource>();
 	}
 	
 	// Update is called once per frame
@@ -44,6 +50,8 @@ public class GameController : MonoBehaviour {
 	// Allow player to update the game lives count
 	public void updateLivesCount(int delta) {
 		playerLives += delta;
+		if (delta < 0) this.audioSource.PlayOneShot(deathSound);
+		else this.audioSource.PlayOneShot(powerupSound);
 	}
 
 	// Allow player to update the score

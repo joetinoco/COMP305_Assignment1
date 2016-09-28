@@ -17,6 +17,7 @@ public class PlayerBehaviour : MonoBehaviour {
 	public float bulletDistance = .2f; // relative to the center of the ship
 	public float timeBetweenFires = .3f; // "Cooloff" time
 	private float timeTilNextFire = 0.0f;
+	public AudioClip fireSound;
 
 	// Use this for initialization
 	void Start () {
@@ -74,6 +75,7 @@ public class PlayerBehaviour : MonoBehaviour {
 			bulletPos.y += (Mathf.Sin((rotationAngle) * Mathf.Deg2Rad) * - bulletDistance);
 			// Create the bullet instance
 			Instantiate (bullet, bulletPos, this.transform.rotation);
+			gameController.audioSource.PlayOneShot(this.fireSound);
 			timeTilNextFire = timeBetweenFires;
 		}
 	}
