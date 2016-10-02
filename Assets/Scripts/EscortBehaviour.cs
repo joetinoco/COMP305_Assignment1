@@ -1,15 +1,19 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
 using System;
 
 public class EscortBehaviour : MonoBehaviour {
 
 	private Transform _transform;
+	private PlayerBehaviour player;
+
+	public Transform escortExplosion;
 
 	private GameController gameController;
 	
 	// Movement modifier applied to directional movement
 	public float escortSpeed = 0.25f;
+	public float shakeTimeAfterDamage = 1f;
+	private float remainingShakeTime = 0;
 
 	// Positions
 	private int[] escortYPositions;
@@ -23,12 +27,16 @@ public class EscortBehaviour : MonoBehaviour {
 		this.gameController = GameObject
 				.FindGameObjectWithTag("GameController")
 				.GetComponent<GameController>();
+		this.player = GameObject
+				.FindGameObjectWithTag("Player")
+				.GetComponent<PlayerBehaviour>();
 		destinationPos = currentPos;
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		if (destinationPos != currentPos) this._move ();
+		if (remainingShakeTime > 0) this.shake();
 	}
 
 	public void moveEscort(GameObject pickup) {
@@ -78,6 +86,7 @@ public class EscortBehaviour : MonoBehaviour {
 			this._transform.Translate (movement * Time.deltaTime * escortSpeed, Space.World);
 		} 
 
+		// Check if the ship reached the destination position
 		if (currentPos - destinationPos > 0) {
 			// Ship is moving up
 			if (this._transform.position.y >= movementBoundary) {
@@ -94,11 +103,26 @@ public class EscortBehaviour : MonoBehaviour {
 		}
 	}
 
+	// Shake the ship (to indicate damage)
+	private void shake() {
+		remainingShakeTime -= Time.deltaTime;
+		if (remainingShakeTime > 0) 
+			this.transform.position = new Vector2 ( UnityEngine.Random.Range(-325f, -335f), this.transform.position.y);
+		else this.transform.position = new Vector2 ( -330f, this.transform.position.y);
+	}
+
 	private void OnTriggerEnter2D(Collider2D other) {
 		if (other.gameObject.CompareTag ("Enemy")) {
+			other.SendMessage("DestroyEnemy");
 			if (gameController.updateLivesCount(-1) <= 0) {
+				player.destroyPlayer();
 				Destroy(this.gameObject);
-			};
+				if (escortExplosion) {
+					GameObject exploder = ((Transform)Instantiate(escortExplosion, this.transform.position, this.transform.rotation)).gameObject;
+				}
+			} else {
+				this.remainingShakeTime = this.shakeTimeAfterDamage;
+			}
 		}
 	}
 }

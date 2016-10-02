@@ -73,7 +73,7 @@ public class EnemyBehaviour : MonoBehaviour {
 	}
 
 	// Trigger explosion and destroy enemy
-	private void _destroy(){
+	public void DestroyEnemy(){
 		Destroy(gameObject);
 		gameController.audioSource.PlayOneShot(this.hitSound);
 		gameController.updateEnemyCount(-1);
@@ -88,7 +88,7 @@ public class EnemyBehaviour : MonoBehaviour {
 		if (other.gameObject.CompareTag ("Bullet")) {
 			other.SendMessage("DestroyBullet");
 			damage--;
-			if (damage <= 0) _destroy();
+			if (damage <= 0) DestroyEnemy();
 		}
 	}
 }

@@ -21,9 +21,10 @@ public class PlayerBehaviour : MonoBehaviour {
 	public float bulletDistance = .2f; // relative to the center of the ship
 	public float timeBetweenFires = .3f; // "Cooloff" time
 	private float timeTilNextFire = 0.0f;
-	public float secondsDisabledAfterHit = 1.8f;
+	public float secondsDisabledAfterHit = 2f;
 	public float timeUntilReenable;
 	public AudioClip fireSound;
+	public AudioClip moveEscortSound;
 
 	// Use this for initialization
 	void Start () {
@@ -40,16 +41,18 @@ public class PlayerBehaviour : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		this._move ();
 		// Process keyboard shooting input
 		if (Input.GetAxis ("Fire1") == 1) this._fire();
 		timeTilNextFire -= Time.deltaTime;
 		if (timeUntilReenable > 0) {
 			timeUntilReenable -= Time.deltaTime;
 			colorTransformFactor = (secondsDisabledAfterHit - timeUntilReenable) / secondsDisabledAfterHit;
-			sprite.color = new Color(1, Mathf.Clamp(colorTransformFactor, 0, 1),1,1);
-			Debug.Log(Mathf.Clamp(Mathf.RoundToInt(colorTransformFactor * 255), 0, 255));
-		} 
+			sprite.color = new Color(1, Mathf.Clamp(colorTransformFactor, 0, 1),Mathf.Clamp(colorTransformFactor, 0, 1),1);
+			this.transform.position = new Vector2 ( UnityEngine.Random.Range(-232f, -228f), this.transform.position.y);
+		} else {
+			this._move ();
+			this.transform.position = new Vector2 ( -230f, this.transform.position.y);
+		}
 	}
 
 	private void reset(){
@@ -101,16 +104,17 @@ public class PlayerBehaviour : MonoBehaviour {
 		}
 	}
 
+	public void destroyPlayer() {
+		Destroy(this.gameObject);
+	}
+
 	private void OnTriggerEnter2D(Collider2D other) {
 		// Ignore bullet collisions (which happen when player fires)
 		if (other.gameObject.CompareTag ("Bullet")) return;
 		
 		if (other.gameObject.CompareTag ("Enemy")) {
+			other.SendMessage("DestroyEnemy");
 			disableTemporarily();
-			if (gameController.updateLivesCount(0) <= 0) {
-				Destroy(this.gameObject);
-			};
-			//this.reset();
 		}
 		if (other.gameObject.CompareTag ("Powerup")) {
 			other.SendMessage("DestroyPowerup");
@@ -119,6 +123,7 @@ public class PlayerBehaviour : MonoBehaviour {
 		if (other.gameObject.CompareTag ("EscortDownMover") || other.gameObject.CompareTag ("EscortUpMover")) {
 			other.SendMessage("DestroyPowerup");
 			escort.moveEscort(other.gameObject);
+			gameController.audioSource.PlayOneShot(this.moveEscortSound);
 		}
 	}
 }

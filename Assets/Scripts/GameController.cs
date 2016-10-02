@@ -76,7 +76,7 @@ public class GameController : MonoBehaviour {
 		}
 	}
 
-	// Ensure a correct number of enemies in the screen
+	// Ensure a correct number of powerups in the screen
 	private void spawnPowerups(){
 		if (GameObject.FindWithTag("Powerup") == null){
 			Instantiate(powerup);
