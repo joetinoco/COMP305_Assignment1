@@ -21,7 +21,7 @@ public class PlayerBehaviour : MonoBehaviour {
 	public float bulletDistance = .2f; // relative to the center of the ship
 	public float timeBetweenFires = .3f; // "Cooloff" time
 	private float timeTilNextFire = 0.0f;
-	public float secondsDisabledAfterHit = 1.5f;
+	public float secondsDisabledAfterHit = 1.8f;
 	public float timeUntilReenable;
 	public AudioClip fireSound;
 
@@ -47,8 +47,7 @@ public class PlayerBehaviour : MonoBehaviour {
 		if (timeUntilReenable > 0) {
 			timeUntilReenable -= Time.deltaTime;
 			colorTransformFactor = (secondsDisabledAfterHit - timeUntilReenable) / secondsDisabledAfterHit;
-			sprite.color = new Color(255, 0,255,1);
-			// sprite.color = new Color(255, Mathf.Clamp(Mathf.RoundToInt(colorTransformFactor * 255), 0, 255),255,1);
+			sprite.color = new Color(1, Mathf.Clamp(colorTransformFactor, 0, 1),1,1);
 			Debug.Log(Mathf.Clamp(Mathf.RoundToInt(colorTransformFactor * 255), 0, 255));
 		} 
 	}

@@ -5,6 +5,8 @@ public class EnemyBehaviour : MonoBehaviour {
 
 	private GameController gameController;
 
+	public Transform explosion;
+
 	private int _speed = 5;
 	private int _drift;
 	private Transform _transform;
@@ -76,6 +78,10 @@ public class EnemyBehaviour : MonoBehaviour {
 		gameController.audioSource.PlayOneShot(this.hitSound);
 		gameController.updateEnemyCount(-1);
 		gameController.updateScore(100);
+		if (explosion) {
+			GameObject exploder = ((Transform)Instantiate(explosion, this.transform.position, this.transform.rotation)).gameObject;
+			Destroy(exploder, 2.0f);
+		}
 	}
 
 	private void OnTriggerEnter2D(Collider2D other) {
