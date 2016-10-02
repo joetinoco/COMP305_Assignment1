@@ -4,8 +4,12 @@ using System.Collections.Generic;
 public class PlayerBehaviour : MonoBehaviour {
 
 	private Transform _transform;
+	private SpriteRenderer sprite;
+	private float colorTransformFactor;
 
 	private GameController gameController;
+
+	private EscortBehaviour escort;
 
 	public List<KeyCode> shootButton;
 	
@@ -17,14 +21,20 @@ public class PlayerBehaviour : MonoBehaviour {
 	public float bulletDistance = .2f; // relative to the center of the ship
 	public float timeBetweenFires = .3f; // "Cooloff" time
 	private float timeTilNextFire = 0.0f;
+	public float secondsDisabledAfterHit = 1.5f;
+	public float timeUntilReenable;
 	public AudioClip fireSound;
 
 	// Use this for initialization
 	void Start () {
 		this._transform = this.GetComponent<Transform>();
+		this.sprite = (SpriteRenderer)GetComponent<SpriteRenderer>();
 		this.gameController = GameObject
 				.FindGameObjectWithTag("GameController")
 				.GetComponent<GameController>();
+		this.escort = GameObject
+				.FindGameObjectWithTag("Escort")
+				.GetComponent<EscortBehaviour>();
 		this.reset();
 	}
 	
@@ -34,10 +44,18 @@ public class PlayerBehaviour : MonoBehaviour {
 		// Process keyboard shooting input
 		if (Input.GetAxis ("Fire1") == 1) this._fire();
 		timeTilNextFire -= Time.deltaTime;
+		if (timeUntilReenable > 0) {
+			timeUntilReenable -= Time.deltaTime;
+			colorTransformFactor = (secondsDisabledAfterHit - timeUntilReenable) / secondsDisabledAfterHit;
+			sprite.color = new Color(255, 0,255,1);
+			// sprite.color = new Color(255, Mathf.Clamp(Mathf.RoundToInt(colorTransformFactor * 255), 0, 255),255,1);
+			Debug.Log(Mathf.Clamp(Mathf.RoundToInt(colorTransformFactor * 255), 0, 255));
+		} 
 	}
 
 	private void reset(){
 		this._transform.position = new Vector2(-230f, 0);
+		this.timeUntilReenable = 0;
 	}
 
 	// Move the ship 
@@ -62,8 +80,12 @@ public class PlayerBehaviour : MonoBehaviour {
 		this._transform.position = new Vector2 (-230f, Mathf.Clamp(this._transform.position.y, -280f, 230f));
 	}
 
+	private void disableTemporarily(){
+		timeUntilReenable = secondsDisabledAfterHit;
+	}
+
 	private void _fire(){
-		if (timeTilNextFire <= 0){
+		if (timeTilNextFire <= 0 && timeUntilReenable <= 0){
 			// this.transform.position is the transform for the current player's position
 			Vector3 bulletPos = this.transform.position;
 
@@ -83,16 +105,21 @@ public class PlayerBehaviour : MonoBehaviour {
 	private void OnTriggerEnter2D(Collider2D other) {
 		// Ignore bullet collisions (which happen when player fires)
 		if (other.gameObject.CompareTag ("Bullet")) return;
-		Debug.Log("Player collided with something");
+		
 		if (other.gameObject.CompareTag ("Enemy")) {
-			Debug.Log ("Enemy hit player!");
-			gameController.updateLivesCount(-1);
+			disableTemporarily();
+			if (gameController.updateLivesCount(0) <= 0) {
+				Destroy(this.gameObject);
+			};
 			//this.reset();
 		}
 		if (other.gameObject.CompareTag ("Powerup")) {
-			Debug.Log ("Picked up powerup!");
 			other.SendMessage("DestroyPowerup");
 			gameController.updateLivesCount(+1);
+		}
+		if (other.gameObject.CompareTag ("EscortDownMover") || other.gameObject.CompareTag ("EscortUpMover")) {
+			other.SendMessage("DestroyPowerup");
+			escort.moveEscort(other.gameObject);
 		}
 	}
 }

@@ -6,6 +6,8 @@ public class GameController : MonoBehaviour {
 
 	public Transform enemy;
 	public Transform powerup;
+	public Transform moveEscortDownPickup;
+	public Transform moveEscortUpPickup;
 
 	[Header("Enemies and difficulty")]
 	public int initialLives = 5;
@@ -48,10 +50,11 @@ public class GameController : MonoBehaviour {
 	}
 
 	// Allow player to update the game lives count
-	public void updateLivesCount(int delta) {
+	public int updateLivesCount(int delta) {
 		playerLives += delta;
 		if (delta < 0) this.audioSource.PlayOneShot(deathSound);
 		else this.audioSource.PlayOneShot(powerupSound);
+		return this.playerLives;
 	}
 
 	// Allow player to update the score
@@ -78,11 +81,21 @@ public class GameController : MonoBehaviour {
 		if (GameObject.FindWithTag("Powerup") == null){
 			Instantiate(powerup);
 		}
+		if (GameObject.FindWithTag("EscortDownMover") == null){
+			Instantiate(moveEscortDownPickup);
+		}
+		if (GameObject.FindWithTag("EscortUpMover") == null){
+			Instantiate(moveEscortUpPickup);
+		}
 	}
 
 	private void updateUI(){
 		scoreText.text = "Score: " + playerScore;
-		livesText.text = "Lives: " + playerLives;
+		if (playerLives > 0) {
+			livesText.text = "Lives: " + playerLives;
+		} else {
+			livesText.text = "Game over!";
+		}
 	}
 
 }

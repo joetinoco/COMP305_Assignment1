@@ -79,9 +79,7 @@ public class EnemyBehaviour : MonoBehaviour {
 	}
 
 	private void OnTriggerEnter2D(Collider2D other) {
-		Debug.Log("Enemy collided with something");
 		if (other.gameObject.CompareTag ("Bullet")) {
-			Debug.Log ("Bullet hit!");
 			other.SendMessage("DestroyBullet");
 			damage--;
 			if (damage <= 0) _destroy();

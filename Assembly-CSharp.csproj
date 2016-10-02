@@ -51,7 +51,9 @@
      <Compile Include="Assets\Scripts\BackgroundBehaviour.cs" />
      <Compile Include="Assets\Scripts\BulletBehaviour.cs" />
      <Compile Include="Assets\Scripts\EnemyBehaviour.cs" />
+     <Compile Include="Assets\Scripts\EscortBehaviour.cs" />
      <Compile Include="Assets\Scripts\GameController.cs" />
+     <Compile Include="Assets\Scripts\MoveEscortPickupBehaviour.cs" />
      <Compile Include="Assets\Scripts\PlayerBehaviour.cs" />
      <Compile Include="Assets\Scripts\PowerupBehaviour.cs" />
  <Reference Include="UnityEngine.UI">
